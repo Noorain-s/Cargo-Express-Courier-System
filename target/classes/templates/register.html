@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Cargo Express</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .register-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            width: 450px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <h3 class="text-center mb-4" style="color:#1e3c72;">Create Customer Account</h3>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <form th:action="@{/register}" th:object="${user}" method="post">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="fullName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input type="text" name="phone" id="phone" class="form-control" inputmode="numeric" maxlength="10" required>
+                <div class="invalid-feedback" id="phoneFeedback">Phone number must be exactly 10 digits.</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                <textarea name="address" class="form-control" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" id="password" class="form-control" required>
+                <div class="form-text">At least 8 characters, including 1 special character (e.g. @ # ! %).</div>
+                <div class="invalid-feedback" id="passwordFeedback">Password needs 8+ characters and 1 special character.</div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">Register</button>
+        </form>
+
+        <div class="toast align-items-center text-bg-danger border-0 position-fixed top-0 start-50 translate-middle-x mt-3"
+             id="validationToast" role="alert" style="z-index: 1080;">
+            <div class="d-flex">
+                <div class="toast-body" id="validationToastBody">Invalid input</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+
+        <p class="text-center mt-3 mb-0">
+            Already have an account? <a th:href="@{/login}">Login</a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const form = document.querySelector('form');
+        const toastEl = document.getElementById('validationToast');
+        const toastBody = document.getElementById('validationToastBody');
+        const toast = new bootstrap.Toast(toastEl, { delay: 2500 });
+
+        function showToast(message) {
+            toastBody.innerText = message;
+            toast.show();
+        }
+
+        function isPhoneValid(value) {
+            return /^\d{10}$/.test(value);
+        }
+
+        function isPasswordValid(value) {
+            return value.length >= 8 && /[^a-zA-Z0-9]/.test(value);
+        }
+
+        // Real-time phone check: strip non-digits, warn as soon as it goes over 10
+        phoneInput.addEventListener('input', () => {
+            const digitsOnly = phoneInput.value.replace(/\D/g, '');
+            if (phoneInput.value.length > digitsOnly.length) {
+                showToast('Phone number can only contain digits.');
+            }
+            if (digitsOnly.length > 10) {
+                showToast('Invalid phone number: must be exactly 10 digits.');
+                phoneInput.value = digitsOnly.slice(0, 10);
+            } else {
+                phoneInput.value = digitsOnly;
+            }
+            phoneInput.classList.toggle('is-invalid', phoneInput.value.length > 0 && !isPhoneValid(phoneInput.value));
+        });
+
+        passwordInput.addEventListener('input', () => {
+            const valid = isPasswordValid(passwordInput.value);
+            passwordInput.classList.toggle('is-invalid', passwordInput.value.length > 0 && !valid);
+        });
+
+        form.addEventListener('submit', (e) => {
+            let hasError = false;
+            if (!isPhoneValid(phoneInput.value)) {
+                showToast('Invalid phone number: must be exactly 10 digits.');
+                phoneInput.classList.add('is-invalid');
+                hasError = true;
+            }
+            if (!isPasswordValid(passwordInput.value)) {
+                showToast('Password must be 8+ characters with 1 special character.');
+                passwordInput.classList.add('is-invalid');
+                hasError = true;
+            }
+            if (hasError) e.preventDefault();
+        });
+    </script>
+</body>
+</html>

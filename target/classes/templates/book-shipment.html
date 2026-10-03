@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Shipment - Cargo Express</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1e3c72; }
+        .navbar-brand, .nav-link { color: #fff !important; }
+        .form-card { background: #fff; border-radius: 10px; padding: 30px; max-width: 600px; margin: 30px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #costPreview { font-size: 22px; font-weight: 700; color: #27ae60; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg px-4">
+        <span class="navbar-brand">📦 Cargo Express</span>
+        <div class="ms-auto">
+            <a class="nav-link d-inline" th:href="@{/customer/dashboard}">Dashboard</a>
+            <a class="nav-link d-inline ms-3" th:href="@{/logout}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="form-card">
+        <h4 class="mb-3">Book a New Shipment</h4>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <form th:action="@{/shipment/book}" method="post">
+            <div class="mb-3">
+                <label class="form-label">Receiver Name</label>
+                <input type="text" name="receiverName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Receiver Phone</label>
+                <input type="text" name="receiverPhone" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Receiver Address</label>
+                <textarea name="receiverAddress" class="form-control" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Package Type</label>
+                <select name="packageType" id="packageType" class="form-select" onchange="updateCost()" required>
+                    <option th:each="type : ${packageTypes}" th:value="${type}" th:text="${type}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Weight (kg)</label>
+                <input type="number" step="0.1" min="0.1" name="weightKg" id="weightKg" class="form-control" oninput="updateCost()" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Payment Mode</label>
+                <select name="paymentMode" class="form-select" required>
+                    <option value="CASH">Cash</option>
+                    <option value="CARD">Card</option>
+                    <option value="UPI">UPI</option>
+                    <option value="ONLINE">Online</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                Estimated Cost: <span id="costPreview">₹0.00</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Confirm Booking</button>
+        </form>
+    </div>
+
+    <script>
+        // Live cost preview mirrors the backend formula (Document ₹20/kg, Parcel ₹50/kg, Fragile ₹80/kg + ₹30)
+        function updateCost() {
+            const type = document.getElementById('packageType').value;
+            const weight = parseFloat(document.getElementById('weightKg').value) || 0;
+            let rate = 0, fee = 0;
+            if (type === 'DOCUMENT') rate = 20;
+            else if (type === 'PARCEL') rate = 50;
+            else if (type === 'FRAGILE') { rate = 80; fee = 30; }
+            const cost = (weight * rate) + fee;
+            document.getElementById('costPreview').innerText = '₹' + cost.toFixed(2);
+        }
+    </script>
+</body>
+</html>

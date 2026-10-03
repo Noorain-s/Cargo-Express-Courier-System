@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Dashboard - Cargo Express</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1e3c72; }
+        .navbar-brand, .nav-link { color: #fff !important; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg px-4">
+        <span class="navbar-brand">📦 Cargo Express — Staff</span>
+        <div class="ms-auto">
+            <a class="nav-link d-inline" th:href="@{/staff/dashboard}">Dashboard</a>
+            <a class="nav-link d-inline ms-3" th:href="@{/shipment/track}">All Shipments</a>
+            <a class="nav-link d-inline ms-3" th:href="@{/logout}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h4>Welcome, <span th:text="${user.fullName}"></span> 👋</h4>
+
+        <h5 class="mt-4">Shipments Assigned to Me</h5>
+        <table class="table table-bordered bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th><th>Receiver</th><th>Type</th><th>Weight (kg)</th><th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(assignedShipments)}">
+                    <td colspan="5" class="text-center text-muted">No shipments assigned yet</td>
+                </tr>
+                <tr th:each="s : ${assignedShipments}">
+                    <td th:text="${s.id}"></td>
+                    <td th:text="${s.receiverName}"></td>
+                    <td th:text="${s.packageType}"></td>
+                    <td th:text="${s.weightKg}"></td>
+                    <td th:text="${s.status}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5 class="mt-4">All Shipments (Overview)</h5>
+        <table class="table table-striped bg-white">
+            <thead class="table-secondary">
+                <tr>
+                    <th>ID</th><th>Sender</th><th>Receiver</th><th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${allShipments}">
+                    <td th:text="${s.id}"></td>
+                    <td th:text="${s.sender.name}"></td>
+                    <td th:text="${s.receiverName}"></td>
+                    <td th:text="${s.status}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
